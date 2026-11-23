@@ -79,6 +79,20 @@ def gate(word):
     return True
 
 
+def verify_output(path, word):
+    """Read the written file back and confirm it holds exactly the chosen
+    word and still passes the gate: a program that cannot prove its own
+    output is not finished."""
+    with open(path, "r", encoding="utf-8", newline="") as handle:
+        written = handle.read()
+    if written != word:
+        raise SystemExit("output mismatch: wrote %r, read back %r"
+                         % (word, written))
+    if not gate(written):
+        raise SystemExit("written output fails the gate: %r" % (written,))
+    return written
+
+
 def main():
     word, total = first_thought(CANDIDATES)
     if not gate(word):
@@ -86,6 +100,7 @@ def main():
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8", newline="") as handle:
         handle.write(word)
+    verify_output(OUTPUT_PATH, word)
     print(word)
     print("score: %d" % total)
 
